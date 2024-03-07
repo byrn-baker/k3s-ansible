@@ -1,11 +1,4 @@
 ---
-- name: Prepare Proxmox VM Cluster
-  hosts: localhost
-  gather_facts: true
-  roles:
-    - role: proxmox_vm
-      when: prox_api is defined
-
 - name: Pre tasks
   hosts: all
   pre_tasks:

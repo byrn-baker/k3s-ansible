@@ -80,7 +80,7 @@
     body_format: json
     body:
       disk: "scsi0"
-      size: "+38"
+      size: "+38G"
     validate_certs: no
   register: expand_bootdisk
 
