@@ -1,4 +1,4 @@
-.env/
+.k3s-env/
 *.log
 ansible.cfg
 kubeconfig

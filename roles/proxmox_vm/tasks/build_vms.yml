@@ -1,0 +1,96 @@
+---
+- name: Print hostname
+  debug:
+    msg: "Running tasks for {{ target_host }}"
+
+- set_fact:
+    vmid: "{{ hostvars[target_host]['vmid'] }}"
+
+# - name: Get next VMID from Proxmox
+#   uri:
+#     url: "{{prox_api}}cluster/nextid"
+#     method: GET
+#     headers:
+#       Authorization: "{{ prox_auth }}"
+#     validate_certs: no
+#   register: nextid
+
+# - set_fact:
+#     vmid: "{{ nextid.json.data }}"
+
+- name: Clone the Ubuntu VM Template
+  uri:
+    url: "{{prox_api}}nodes/hp-pve01/qemu/8000/clone"
+    method: POST
+    headers:
+      Authorization: "{{ prox_auth }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      newid: "{{ vmid }}"
+      full: true
+      name: "{{ target_host }}"
+      storage: "hp-pve-ssd-500gb"
+    validate_certs: no
+  register: create_vm
+
+- name: Wait for VM cloning to finish
+  uri:
+    url: "{{prox_api}}nodes/hp-pve01/qemu/{{ vmid }}/status/current"
+    method: GET
+    headers:
+      Authorization: "{{ prox_auth }}"
+    validate_certs: no
+  register: vm_status
+  until: vm_status.json.data.lock is not defined
+  retries: 100
+  delay: 10
+
+- set_fact: 
+    vm_ip: "{{ host_ip }}/24"
+- set_fact:
+    vm_network: "{{ vm_ip | ansible.utils.ipaddr('network') }}"
+- set_fact:
+    vm_gateway: "{{ vm_network | ansible.utils.ipaddr('address') | ipmath(1) }}"
+
+- name: Update the clones IP to match the inventory
+  uri:
+    url: "{{ prox_api }}nodes/hp-pve01/qemu/{{ vmid }}/config"
+    method: PUT
+    headers:
+      Authorization: "{{ prox_auth }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      ipconfig0: "ip={{ vm_ip }},gw={{ vm_gateway }}"
+      ciuser: "{{ ansible_user }}"
+      cipassword: "{{ ansible_pass }}"
+      nameserver: "{{ vm_gateway }}"
+      sshkeys: "{{ ssh_key }}"
+    validate_certs: no
+  register: modify_vm
+
+- name: Expanding the bootdisk
+  uri:
+    url: "{{ prox_api }}nodes/hp-pve01/qemu/{{ vmid }}/resize"
+    method: PUT
+    headers:
+      Authorization: "{{ prox_auth }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      disk: "scsi0"
+      size: "+38"
+    validate_certs: no
+  register: expand_bootdisk
+
+- name: Start VM
+  uri:
+    url: "{{prox_api}}nodes/hp-pve01/qemu/{{ vmid }}/status/start"
+    method: POST
+    headers:
+      Authorization: "{{ prox_auth }}"
+      Content-Type: "application/json"
+    body: "{}"
+    validate_certs: no
+  register: start_vm
