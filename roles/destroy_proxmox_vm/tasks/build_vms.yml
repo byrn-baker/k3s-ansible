@@ -1,0 +1,28 @@
+---
+- name: Print hostname
+  debug:
+    msg: "Running tasks for {{ target_host }}"
+
+- set_fact:
+    vmid: "{{ hostvars[target_host]['vmid'] }}"
+
+- name: Stop VM
+  uri:
+    url: "{{prox_api}}nodes/hp-pve01/qemu/{{ vmid }}/status/stop"
+    method: POST
+    headers:
+      Authorization: "{{ prox_auth }}"
+      Content-Type: "application/json"
+    body: "{}"
+    validate_certs: no
+  register: stop_vm
+
+- name: Destroy VM
+  uri:
+    url: "{{prox_api}}nodes/hp-pve01/qemu/{{ vmid }}"
+    method: DELETE
+    headers:
+      Authorization: "{{ prox_auth }}"
+      Content-Type: "application/json"
+    validate_certs: no
+  register: delete_vm

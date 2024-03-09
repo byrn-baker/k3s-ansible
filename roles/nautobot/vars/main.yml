@@ -1,0 +1,28 @@
+nautobot_values:
+  nautobot:
+    image:
+      registry: "ghcr.io"
+      repository: "nautobot/nautobot"
+      tag: "2.1.5-py3.11"
+      pullPolicy: "Always"
+    replicaCount: 2
+    metrics: true
+    secretKey: "avitron1"  
+    superUser:
+      enabled: true
+      username: admin
+      password: "admin"
+    extraVars:
+      - name: "NAUTOBOT_BANNER_TOP"
+        value: "HomeLab"
+  workers:
+    default:
+      replicaCount: 2
+  postgresql:
+    enabled: true
+    auth:
+      password: "avitron1"
+  redis:
+    enabled: true 
+    auth:
+      password: "avitron1"

@@ -5,3 +5,4 @@ collections:
   - name: ansible.posix
   - name: kubernetes.core
   - name: ansible.netcommon
+  - name: community.crypto

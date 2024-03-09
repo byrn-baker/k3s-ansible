@@ -1,0 +1,64 @@
+---
+- name: Add Nautobot Helm repository
+  community.kubernetes.helm_repository:
+    name: nautobot
+    repo_url: https://nautobot.github.io/helm-charts/
+
+- name: Update Helm Nautobot repositories
+  community.kubernetes.helm_repository:
+    name: nautobot
+    repo_url: https://nautobot.github.io/helm-charts/
+    force_update: yes
+
+- name: Install Nautobot Helm chart
+  community.kubernetes.helm:
+    name: nautobot
+    chart_ref: nautobot/nautobot
+    release_namespace: default
+    values: "{{ nautobot_values }}"
+    state: present
+  register: nautobot_output
+
+- debug:
+    var: nautobot_output.stdout
+
+- name: Get Nautobot pods
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Pod
+    label_selectors:
+      - app.kubernetes.io/name=nautobot
+  register: nautobot_pods
+
+- debug:
+    var: nautobot_pods
+
+- name: Apply Traefik-Nautobot ingress
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{ lookup('template', 'ingress.j2') }}"
+  register: ingress_output
+
+- debug:
+    var: ingress_output.stdout
+
+- name: Run command and register output
+  shell: |
+    echo Username: admin
+    echo Password: $(kubectl get secret --namespace default nautobot-env -o jsonpath="{.data.NAUTOBOT_SUPERUSER_PASSWORD}" | base64 --decode)
+    echo api-token: $(kubectl get secret --namespace default nautobot-env -o jsonpath="{.data.NAUTOBOT_SUPERUSER_API_TOKEN}" | base64 --decode)
+  register: command_output
+
+- name: Extract variables from command output
+  set_fact:
+    nautobot_username: "{{ command_output.stdout_lines[0].split(':')[1].strip() }}"
+    nautobot_password: "{{ command_output.stdout_lines[1].split(':')[1].strip() }}"
+    nautobot_api_token: "{{ command_output.stdout_lines[2].split(':')[1].strip() }}"
+
+- name: Write variables to a YAML file
+  copy:
+    content: |
+      username: "{{ nautobot_username }}"
+      password: "{{ nautobot_password }}"
+      api_token: "{{ nautobot_api_token }}"
+    dest: nautobot_secrets.yml

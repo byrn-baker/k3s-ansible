@@ -1,0 +1,7 @@
+---
+- name: Prepare Proxmox VM Cluster
+  hosts: localhost
+  gather_facts: true
+  roles:
+    - role: destroy_proxmox_vm
+      when: prox_api is defined

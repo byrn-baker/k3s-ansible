@@ -62,6 +62,8 @@
       Content-Type: "application/json"
     body_format: json
     body:
+      cores: 4
+      memory: 4096
       ipconfig0: "ip={{ vm_ip }},gw={{ vm_gateway }}"
       ciuser: "{{ ansible_user }}"
       cipassword: "{{ ansible_pass }}"
