@@ -8,11 +8,13 @@ After watching a couple Techno Tims excelent videos on k3s, I decided to add a c
 - Deploying Nautobot on the k3s
 - [Deploying cert manager on k3s and configuring staging and production certificates](https://technotim.live/posts/kube-traefik-cert-manager-le/)
 
+I added an inventory.yml file, I like my inventories in yaml format, in the yaml inventory proxmox vmids are added as a host variable.
+
 ## Nautobot
 I use this tool pretty extensivly with work and my home lab. If you do not know about it you should check out this project managed by [NetworktoCode](https://docs.nautobot.com/projects/core/en/stable/)
 
-## Things I moved around
-
+## Things I am working on
+In the roles I have added I am working on adding some validation steps to the certificate tasks.
 
 ## Thanks 🤝
 
