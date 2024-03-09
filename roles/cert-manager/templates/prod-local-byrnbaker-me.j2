@@ -2,14 +2,14 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: local-byrnbaker-me
+  name: local-example-com
   namespace: default
 spec:
-  secretName: local-byrnbaker-me-tls
+  secretName: local-example-com-tls
   issuerRef:
     name: letsencrypt-production
     kind: ClusterIssuer
-  commonName: "*.local.byrnbaker.me"
+  commonName: "*.local.example.com"
   dnsNames:
-  - "local.byrnbaker.me"
-  - "*.local.byrnbaker.me"
+  - "local.example.com"
+  - "*.local.example.com"

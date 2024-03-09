@@ -10,7 +10,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`nautobot.local.byrnbaker.me`)
+    - match: Host(`nautobot.local.example.com`)
       kind: Rule
       services:
         - name: nautobot-default
@@ -18,4 +18,4 @@ spec:
       middlewares:
         - name: default-headers
   tls:
-    secretName: local-byrnbaker-me-tls
+    secretName: local-example-com-tls
