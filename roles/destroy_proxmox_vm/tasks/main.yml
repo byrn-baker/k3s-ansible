@@ -1,6 +1,6 @@
 ---
 - name: Include tasks for each host in k3s_cluster
-  include_tasks: build_vms.yml
+  include_tasks: destroy_vms.yml
   loop: "{{ groups['k3s_cluster'] }}"
   loop_control:
     loop_var: target_host

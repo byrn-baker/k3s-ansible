@@ -1,93 +1,93 @@
 ---
-# - name: Add jetstack Helm repository
-#   community.kubernetes.helm_repository:
-#     name: jetstack
-#     repo_url: https://charts.jetstack.io
+- name: Add jetstack Helm repository
+  community.kubernetes.helm_repository:
+    name: jetstack
+    repo_url: https://charts.jetstack.io
 
-# - name: Update Helm jetstack repositories
-#   community.kubernetes.helm_repository:
-#     name: jetstack
-#     repo_url: https://charts.jetstack.io
-#     force_update: yes
+- name: Update Helm jetstack repositories
+  community.kubernetes.helm_repository:
+    name: jetstack
+    repo_url: https://charts.jetstack.io
+    force_update: yes
 
-# - name: Create cert-manager namespace
-#   community.kubernetes.k8s:
-#     api_version: v1
-#     kind: Namespace
-#     name: cert-manager
-#     state: present
+- name: Create cert-manager namespace
+  community.kubernetes.k8s:
+    api_version: v1
+    kind: Namespace
+    name: cert-manager
+    state: present
 
-# - name: Apply cert-manager CRDs
-#   community.kubernetes.k8s:
-#     state: present
-#     src: https://github.com/cert-manager/cert-manager/releases/download/v1.14.1/cert-manager.crds.yaml
+- name: Apply cert-manager CRDs
+  community.kubernetes.k8s:
+    state: present
+    src: https://github.com/cert-manager/cert-manager/releases/download/v1.14.1/cert-manager.crds.yaml
 
-# - name: Install cert-manager Helm chart
-#   community.kubernetes.helm:
-#     name: cert-manager
-#     chart_ref: jetstack/cert-manager
-#     release_namespace: cert-manager
-#     values: "{{ cert_manager }}"
-#     chart_version: 1.14.1
-#     state: present
+- name: Install cert-manager Helm chart
+  community.kubernetes.helm:
+    name: cert-manager
+    chart_ref: jetstack/cert-manager
+    release_namespace: cert-manager
+    values: "{{ cert_manager }}"
+    chart_version: 1.14.1
+    state: present
 
-# - name: Apply issuers secrets
-#   community.kubernetes.k8s:
-#     state: present
-#     definition: "{{ lookup('template', 'secret-cf-token.j2') }}"
+- name: Apply issuers secrets
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{ lookup('template', 'secret-cf-token.j2') }}"
   
-# - name: Apply Staging ClusterIssuer
-#   community.kubernetes.k8s:
-#     state: present
-#     definition: "{{ lookup('template', 'letsencrypt-staging.j2') }}"
+- name: Apply Staging ClusterIssuer
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{ lookup('template', 'letsencrypt-staging.j2') }}"
 
-# - name: Apply Generate Stagging Certificate
-#   community.kubernetes.k8s:
-#     state: present
-#     definition: "{{ lookup('template', 'stage-local-byrnbaker-me.j2') }}"
+- name: Apply Generate Stagging Certificate
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{ lookup('template', 'stage-local-byrnbaker-me.j2') }}"
 
-# - name: Get challenges
-#   community.kubernetes.k8s_info:
-#     kind: Challenge
-#     namespace: default  # replace with your namespace if different
-#   register: result
-#   until: result.resources | length == 0
-#   retries: 20
-#   delay: 30
+- name: Get challenges
+  community.kubernetes.k8s_info:
+    kind: Challenge
+    namespace: default
+  register: result
+  until: result.resources | length == 0
+  retries: 20
+  delay: 30
 
-# - name: Get a cert from nautobot
-#   community.crypto.get_certificate:
-#     host: "nautobot.local.byrnbaker.me"
-#     port: 443
-#   run_once: true
-#   register: cert
+- name: Get a cert from nautobot
+  community.crypto.get_certificate:
+    host: "nautobot.local.byrnbaker.me"
+    port: 443
+  run_once: true
+  register: cert
 
-# - name: How many days until cert expires
-#   ansible.builtin.debug:
-#     msg: "cert expires in: {{ expire_days }} days. Cert issued by {{ cert.issuer.O }}. Cert covers {{ cert.subject.CN }}."
-#   vars:
-#     expire_days: "{{ (( cert.not_after | to_datetime('%Y%m%d%H%M%SZ')) - (ansible_date_time.iso8601 | to_datetime('%Y-%m-%dT%H:%M:%SZ')) ).days }}"
+- name: How many days until cert expires
+  ansible.builtin.debug:
+    msg: "cert expires in: {{ expire_days }} days. Cert issued by {{ cert.issuer.O }}. Cert covers {{ cert.subject.CN }}."
+  vars:
+    expire_days: "{{ (( cert.not_after | to_datetime('%Y%m%d%H%M%SZ')) - (ansible_date_time.iso8601 | to_datetime('%Y-%m-%dT%H:%M:%SZ')) ).days }}"
 
-# - block:
-#   - name: Apply Production ClusterIssuer
-#     community.kubernetes.k8s:
-#       state: present
-#       definition: "{{ lookup('template', 'letsencrypt-prod.j2') }}"
+- block:
+  - name: Apply Production ClusterIssuer
+    community.kubernetes.k8s:
+      state: present
+      definition: "{{ lookup('template', 'letsencrypt-prod.j2') }}"
 
-#   - name: Apply Production Certificate
-#     community.kubernetes.k8s:
-#       state: present
-#       definition: "{{ lookup('template', 'prod-local-byrnbaker-me.j2') }}"
-#   when: cert.issuer.O == "(STAGING) Let's Encrypt"
+  - name: Apply Production Certificate
+    community.kubernetes.k8s:
+      state: present
+      definition: "{{ lookup('template', 'prod-local-byrnbaker-me.j2') }}"
+  when: cert.issuer.O == "(STAGING) Let's Encrypt"
 
-# - name: Get challenges
-#   community.kubernetes.k8s_info:
-#     kind: Challenge
-#     namespace: default
-#   register: result
-#   until: result.resources | length == 0
-#   retries: 20
-#   delay: 30
+- name: Get challenges
+  community.kubernetes.k8s_info:
+    kind: Challenge
+    namespace: default
+  register: result
+  until: result.resources | length == 0
+  retries: 20
+  delay: 30
 
 - name: Apply Traefik-Nautobot ingress production certificate
   community.kubernetes.k8s:

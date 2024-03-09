@@ -6,13 +6,13 @@ metadata:
 spec:
   acme:
     server: https://acme-staging-v02.api.letsencrypt.org/directory
-    email: byrnbaker@comcast.net
+    email: byrn.baker@gmail.com
     privateKeySecretRef:
       name: letsencrypt-staging
     solvers:
       - dns01:
           cloudflare:
-            email: byrnbaker@comcast.net
+            email: byrn.baker@gmail.com
             apiTokenSecretRef:
               name: cloudflare-token-secret
               key: cloudflare-token

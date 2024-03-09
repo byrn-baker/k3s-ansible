@@ -1,0 +1,23 @@
+all:
+  children:
+    k3s_cluster:
+      children:
+        master:
+          hosts:
+            k3s01:
+              ansible_host: 192.168.104.38
+              vmid: 2001
+            k3s02:
+              ansible_host: 192.168.104.39
+              vmid: 2002
+            k3s03:  
+              ansible_host: 192.168.104.40
+              vmid: 2003
+        node:
+          hosts:
+            k3s04: 
+              ansible_host: 192.168.104.41
+              vmid: 2004
+            k3s05: 
+              ansible_host: 192.168.104.42
+              vmid: 2005
