@@ -2,3 +2,5 @@
 *.log
 ansible.cfg
 kubeconfig
+*.decrypted~*
+.decrypted~secret.yaml

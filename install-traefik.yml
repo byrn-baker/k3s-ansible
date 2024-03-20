@@ -1,0 +1,10 @@
+# Tags are used in this playbook to control what tasks you want to run. For installing Traefik use the tag "install"
+
+## Example 
+## ansible-playbook install-traefik.yml --tags "install"
+
+
+- name: Install Traefik on k3s
+  hosts: localhost
+  roles:
+    - install-traefik

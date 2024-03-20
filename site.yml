@@ -66,3 +66,18 @@
         dest: ./kubeconfig
         flat: true
       when: ansible_hostname == hostvars[groups[group_name_master | default('master')][0]]['ansible_hostname']
+
+- name: Copy kueconfig into .kubeconfig/config
+  hosts: localhost
+  environment: "{{ proxy_env | default({}) }}"
+  tasks:
+    - name: Create .kube directory
+      ansible.builtin.file:
+        path: "{{ ansible_user_dir }}/.kube"
+        state: directory
+
+    - name: Copy kubeconfig into .kube/config
+      ansible.builtin.copy:
+        src: ./kubeconfig
+        dest: "{{ home_dir }}/.kube/config"
+        mode: '0600'

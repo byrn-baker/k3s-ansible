@@ -1,0 +1,101 @@
+---
+- name: Add Rancher Helm repository
+  kubernetes.core.helm_repository:
+    name: rancher
+    repo_url: https://releases.rancher.com/server-charts/stable
+
+- name: Update Helm Rancher repositories
+  kubernetes.core.helm_repository:
+    name: rancher
+    repo_url: https://releases.rancher.com/server-charts/stable
+    force_update: yes
+
+- name: Check if cert-manager is installed
+  kubernetes.core.k8s_info:
+    kind: Namespace
+    name: cert-manager
+  register: cert_manager_namespace
+
+- fail:
+    msg: "cert-manager is not installed. Please install cert-manager before proceeding."
+  when: cert_manager_namespace.resources | length == 0
+
+- name: Create cattle-system namespace
+  kubernetes.core.k8s:
+    api_version: v1
+    kind: Namespace
+    name: cattle-system
+    state: present
+
+- name: Install Rancher Helm chart
+  kubernetes.core.helm:
+    name: rancher
+    chart_ref: rancher-stable/rancher
+    release_namespace: cattle-system
+    values: 
+      hostname: "{{ rancher_hostname}}"
+      replicas: 1
+      bootstrapPassword: "{{ rancher_password }}"
+      version: "{{ rancher_version }}"
+      # ingress.tls.source: "letsEncrypt"
+      # ingress.tls.email: "{{ cf_email }}"
+      # letsEncrypt.ingress.class: "traefik-external"
+    state: present
+
+- name: Expose Rancher deployment
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: rancher-lb
+        namespace: cattle-system
+      spec:
+        type: LoadBalancer
+        ports:
+        - port: 443
+          targetPort: 443
+        selector:
+          app: rancher
+
+# - name: Get information about rancher-lb service
+#   kubernetes.core.k8s_info:
+#     api_version: v1
+#     kind: Service
+#     name: rancher-lb
+#     namespace: cattle-system
+#   register: rancher_lb_service
+
+# - debug:
+#     var: rancher_lb_service
+
+# - name: Apply Longhorn YAML
+#   kubernetes.core.k8s:
+#     state: present
+#     src: https://raw.githubusercontent.com/longhorn/longhorn/master/deploy/longhorn.yaml
+
+# - name: Get pods in longhorn-system namespace
+#   kubernetes.core.k8s_info:
+#     kind: Pod
+#     namespace: longhorn-system
+#   register: longhorn_system_pods
+
+# - debug:
+#     var: longhorn_system_pods
+
+# - name: Create longhorn-system namespace
+#   kubernetes.core.k8s:
+#     state: present
+#     definition:
+#       apiVersion: v1
+#       kind: Namespace
+#       metadata:
+#         name: longhorn-system
+
+# - name: Install Longhorn Helm chart
+#   kubernetes.core.helm:
+#     name: longhorn
+#     chart_ref: ./longhorn/chart/
+#     release_namespace: longhorn-system
+#     state: present

@@ -1,0 +1,24 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: plex
+  namespace: default
+  annotations: 
+    kubernetes.io/ingress.class: traefik-external
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`www.plex.byrnbaker.me`)
+      kind: Rule
+      services:
+        - name: nginx
+          port: 443
+    - match: Host(`plex.byrnbaker.me`)
+      kind: Rule
+      services:
+        - name: nginx
+          port: 443
+  tls:
+    secretName: plex-byrnbaker-me-tls

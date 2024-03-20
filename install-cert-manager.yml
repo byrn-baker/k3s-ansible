@@ -1,0 +1,13 @@
+# Tags are used in this playbook to control what tasks you want to run. For installing Cert Manager use the tag "install"
+
+# To deploy the Staging or production certs use the tags "staging" or "production" respectively.
+
+## Example 
+## ansible-playbook install-cert-manager.yml --tags "install"
+## ansible-playbook install-cert-manager.yml --tags "staging"
+## ansible-playbook install-cert-manager.yml --tags "production"
+
+- name: Install Cert Manager on k3s
+  hosts: localhost
+  roles:
+    - install-cert-manager

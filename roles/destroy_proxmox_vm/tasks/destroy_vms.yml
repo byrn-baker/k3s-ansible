@@ -8,21 +8,35 @@
 
 - name: Stop VM
   uri:
-    url: "{{prox_api}}nodes/hp-pve01/qemu/{{ vmid }}/status/stop"
+    url: "{{prox_api}}nodes/{{node}}/qemu/{{ vmid }}/status/stop"
     method: POST
     headers:
       Authorization: "{{ prox_auth }}"
       Content-Type: "application/json"
     body: "{}"
     validate_certs: no
-  register: stop_vm
+
+- name: Check that VM has stopped
+  uri:
+    url: "{{prox_api}}nodes/{{node}}/qemu/{{ vmid }}/status/current"
+    method: GET
+    headers:
+      Authorization: "{{ prox_auth }}"
+      Content-Type: "application/json"
+    validate_certs: no
+  register: stopped_vm
+  until: stopped_vm.json.data.status == "stopped"
+  retries: 20
+  delay: 5
+
 
 - name: Destroy VM
   uri:
-    url: "{{prox_api}}nodes/hp-pve01/qemu/{{ vmid }}"
+    url: "{{prox_api}}nodes/{{node}}/qemu/{{ vmid }}"
     method: DELETE
     headers:
       Authorization: "{{ prox_auth }}"
       Content-Type: "application/json"
     validate_certs: no
   register: delete_vm
+  when: stopped_vm.json.data.status == "stopped"

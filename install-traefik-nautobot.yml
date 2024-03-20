@@ -1,6 +1,0 @@
-- name: Install Traefik on k3s
-  hosts: localhost
-  roles:
-    # - traefik
-    # - nautobot
-    - cert-manager

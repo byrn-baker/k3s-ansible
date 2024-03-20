@@ -2,6 +2,12 @@
 - name: Prepare Proxmox VM Cluster
   hosts: localhost
   gather_facts: true
+
+  vars_prompt:
+    - name: node
+      prompt: What Prox node do you want to remove the VMs from?
+      private: false
+
   roles:
     - role: destroy_proxmox_vm
       when: prox_api is defined

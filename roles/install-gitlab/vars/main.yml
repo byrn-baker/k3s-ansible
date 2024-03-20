@@ -1,0 +1,15 @@
+gitlab_values:
+  global:
+    hosts:
+      domain: "{{ git_domain }}"
+      externalIP: 192.168.30.82
+    edition: ce
+  certmanager-issuer:
+    email: "{{ cf_email }}"
+  postgresql:
+    image:
+      tag: 13.6.0
+  gitlab:
+    migrations:
+      initialRootPassword: 
+        secret: "{{ lookup('env', 'GITLAB_ROOT_PASSWORD') }}"

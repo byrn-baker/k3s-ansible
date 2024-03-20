@@ -1,7 +1,90 @@
 ---
+
 - name: Prepare Proxmox VM Cluster
   hosts: localhost
   gather_facts: true
+
+  vars_prompt:
+    - name: node
+      prompt: What Prox node do you want to deploy on?
+      private: false
+    - name: template_id
+      prompt: What Prox template do you want to use (Prox Template VMID)?
+      private: false
+
   roles:
-    - role: proxmox_vm
+    - role: deploy_proxmox_vm
       when: prox_api is defined
+
+- name: Create and Mount NFS share to VMs
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: Install qemu-guest-agent, nfs-common, and open-iscsi
+      ansible.builtin.apt:
+        name: 
+          - qemu-guest-agent
+          - nfs-common
+          - open-iscsi
+        state: present
+        update_cache: true
+      become: true
+
+    - block:     
+      - name: Enable and start open-iscsi
+        ansible.builtin.systemd:
+          name: open-iscsi
+          state: started
+          enabled: yes
+        become: true
+      
+      - block:
+        - name: Ensure mount directory exists
+          ansible.builtin.file:
+            path: /mnt/longhorn/data
+            state: directory
+          become: true
+
+        - name: Ensure NFS share is mounted
+          ansible.posix.mount:
+            path: /mnt/longhorn/data
+            src: "{{ nfs_mount }}"
+            fstype: nfs
+            opts: defaults
+            state: mounted
+          become: true
+      when: nfs_mount is defined
+      
+    - block:
+      - name: Check for existing iSCSI sessions
+        command: iscsiadm -m session
+        register: iscsi_sessions
+        ignore_errors: true
+        become: true
+
+      - name: Discover iSCSI targets
+        command: "iscsiadm -m discovery -t sendtargets -p {{ iscsi_host }}"
+        register: result
+        become: true
+        when: iscsi_sessions.rc != 0
+
+      - name: Login to iSCSI target
+        command: iscsiadm -m node --login
+        become: true
+        when: iscsi_sessions.rc != 0
+
+      - name: Create mount point
+        file:
+          path: /mnt/iscsi
+          state: directory
+        become: true
+
+      - name: Mount iSCSI target
+        mount:
+          path: /mnt/iscsi
+          src: "/dev/disk/by-path/ip-{{iscsi_host}}:3260-iscsi-iscsi-iqn.2000-01.com.synology:DiskStation4bay.Target-1.cc3fdd5a09f-lun-1"
+          fstype: ext4
+          state: mounted
+        become: true
+      when: iscsi_host is defined
