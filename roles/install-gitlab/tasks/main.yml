@@ -26,8 +26,8 @@
       values: "{{ gitlab_values }}"
       state: present
   
-  - name: Apply Traefik-Gitlab ingress
-    community.kubernetes.k8s:
-      state: present
-      definition: "{{ lookup('template', 'staging-ingress.j2') }}"
-    register: ingress_output
+  # - name: Apply Traefik-Gitlab ingress
+  #   community.kubernetes.k8s:
+  #     state: present
+  #     definition: "{{ lookup('template', 'staging-ingress.j2') }}"
+  #   register: ingress_output

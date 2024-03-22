@@ -7,10 +7,20 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`gitlab.local.byrnbaker.me`)
+    - match: Host(`gitlab.local.byrnbaker.me`) && PathPrefix(`/.well-known/acme-challenge/GWLC-N2JIy70h43X_qRG-VTfVVtJ9tuUC8n9HC7HyMs`)
       kind: Rule
       services:
-        - name: gitlab
-          port: 80
+        - name: cm-acme-http-solver-b262d
+          port: 8089
+    - match: Host(`gitlab.local.byrnbaker.me`) && PathPrefix(`/.well-known/acme-challenge/YPDGvoxB6T6gOFsF2u76PK9hRsVDwWgPsYJBLljB8Sk`)
+      kind: Rule
+      services:
+        - name: cm-acme-http-solver-lndwb
+          port: 8089
+    - match: Host(`gitlab.local.byrnbaker.me`) && PathPrefix(`/`)
+      kind: Rule
+      services:
+        - name: gitlab-webservice-default
+          port: 8181
   tls:
     secretName: local-byrnbaker-me-staging-tls

@@ -1,12 +1,13 @@
 gitlab_values:
   global:
     hosts:
-      domain: gitlab.local.byrnbaker.me
+      domain: "{{ commonname | replace('*.', '') }}"
+      externalIP: 192.168.30.82
     edition: ce
   certmanager:
     install: false
   certmanager-issuer:
-    email: byrn.baker@gmail.com
+    email: "{{ cf_email }}"
   postgresql:
     image:
       tag: 13.6.0
