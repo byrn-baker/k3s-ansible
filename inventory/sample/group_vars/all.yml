@@ -1,23 +1,46 @@
 ---
-k3s_version: v1.29.0+k3s1
+k3s_version: v1.27.11+k3s1 # Use this version if you want to have the Rancher-UI
 # this is the user that has ssh access to these machines
 ansible_user: ansibleuser
+ansible_pass: ubuntu
 systemd_dir: /etc/systemd/system
 
-# Enable if you want to use roles to deploy VMs in Proxmox
-# prox_api: # Your Proxmox API URL
-# prox_auth: # Your Proxmox API Token
-# ssh_key: # Your SSH Key for the Ansible Machine the playbook is run from
+# Rancher Stuff
+rancher_version: "v2.8.2"
+rancher_hostname: rancher.local.example.com
+
+# Cert Manager Stuff
+certmanager_version: 
+commonname: "*.local.example.com"
+dnsnames: # for Cert manger setup provide a list of your domains 
+  - "local.example.com"
+  - "*.local.example.com"
+
+# gitlab
+git_domain: gitlab.local.example.com
+
+home_dir: "/home/ubuntu"
+
+# Proxmox API URL
+prox_api: "https://pve01.local.example.com:8006/api2/json/"
+prox_auth: "PVEAPIToken=root@pam!TOKEN={{lookup('env', 'PROX_TOKEN') }}"
+ssh_key: "ansible master ssh key"
+nfs_mount: "nfs.local.example.com:/volume1/longhorn/data"
+iscsi_host: "192.168.x.x"
 
 # CloudFlare API Token
-cf_token: # your cloudflare api token
+cf_email: "example@example.com"
+cf_token: "{{ lookup('env', 'CF_TOKEN') }}"
+cf_zones: 
+  - example.com
 
-# Nautobot Secrets - Provide your own values below
-nb_postgresql_password: 
-nb_redis_password: 
-nb_secretKey: 
-nb_username: 
-nb_password: 
+# Nautobot Secrets
+nb_url: "nautobot.local.example.com"
+nb_postgresql_password: "{{ lookup('env', 'POSTGRESQL_PASSWORD') }}"
+nb_redis_password: "{{ lookup('env', 'REDIS_PASSWORD') }}"
+nb_secretKey: "{{ lookup('env', 'NB_SECRETKEY') }}"
+nb_username: admin
+nb_password: "{{ lookup('env', 'NB_PASSWORD') }}"
 
 
 # Set your timezone

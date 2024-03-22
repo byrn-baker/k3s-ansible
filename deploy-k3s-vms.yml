@@ -1,5 +1,4 @@
 ---
-
 - name: Prepare Proxmox VM Cluster
   hosts: localhost
   gather_facts: true
@@ -57,34 +56,37 @@
       when: nfs_mount is defined
       
     - block:
-      - name: Check for existing iSCSI sessions
-        command: iscsiadm -m session
-        register: iscsi_sessions
-        ignore_errors: true
+      - name: Discover iscsi targets
+        command: iscsiadm -m discovery -t st -p {{ iscsi_host }}
         become: true
 
-      - name: Discover iSCSI targets
-        command: "iscsiadm -m discovery -t sendtargets -p {{ iscsi_host }}"
-        register: result
+      - name: Login to iscsi target
+        command: iscsiadm -m node --targetname {{ hostvars[inventory_hostname]['iscsi_target'] }} --portal {{ iscsi_host }}:3260 --login
         become: true
-        when: iscsi_sessions.rc != 0
 
-      - name: Login to iSCSI target
-        command: iscsiadm -m node --login
+      - name: Format the disk
+        command: mkfs.ext4 /dev/sdb
         become: true
-        when: iscsi_sessions.rc != 0
-
-      - name: Create mount point
+      
+      - name: Create directory
         file:
           path: /mnt/iscsi
           state: directory
-        become: true
+          mode: '0755'
 
-      - name: Mount iSCSI target
+      - name: Mount the disk
         mount:
           path: /mnt/iscsi
-          src: "/dev/disk/by-path/ip-{{iscsi_host}}:3260-iscsi-iscsi-iqn.2000-01.com.synology:DiskStation4bay.Target-1.cc3fdd5a09f-lun-1"
+          src: /dev/sdb
           fstype: ext4
           state: mounted
+          opts: _netdev
         become: true
-      when: iscsi_host is defined
+
+      - name: Add mount to fstab
+        lineinfile:
+          path: /etc/fstab
+          line: '/dev/sdb /mnt/iscsi ext4 _netdev 0 0'
+          state: present
+        become: true
+      when: hostvars[inventory_hostname]['iscsi_target'] is defined

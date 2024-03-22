@@ -1,0 +1,16 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: gitlab
+  namespace: gitlab
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`gitlab.local.byrnbaker.me`)
+      kind: Rule
+      services:
+        - name: gitlab
+          port: 80
+  tls:
+    secretName: local-byrnbaker-me-staging-tls

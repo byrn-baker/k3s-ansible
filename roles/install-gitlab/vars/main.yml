@@ -1,15 +1,17 @@
 gitlab_values:
   global:
     hosts:
-      domain: "{{ git_domain }}"
-      externalIP: 192.168.30.82
+      domain: gitlab.local.byrnbaker.me
     edition: ce
+  certmanager:
+    install: false
   certmanager-issuer:
-    email: "{{ cf_email }}"
+    email: byrn.baker@gmail.com
   postgresql:
     image:
       tag: 13.6.0
-  gitlab:
-    migrations:
-      initialRootPassword: 
-        secret: "{{ lookup('env', 'GITLAB_ROOT_PASSWORD') }}"
+  persistence:
+    enabled: true
+    gitaly:
+      enabled: true
+      storageClassName: my-gitaly-storage

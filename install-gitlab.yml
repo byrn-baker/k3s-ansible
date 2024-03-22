@@ -1,0 +1,5 @@
+---
+- name: Install Gitlab on k3s
+  hosts: localhost
+  roles:
+    - install-gitlab
