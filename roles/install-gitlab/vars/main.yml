@@ -8,6 +8,9 @@ gitlab_values:
     install: false
   certmanager-issuer:
     email: "{{ cf_email }}"
+  ingress:
+    tls:
+      secretName: local-byrnbaker-me-staging-tls
   postgresql:
     image:
       tag: 13.6.0
@@ -16,3 +19,7 @@ gitlab_values:
     gitaly:
       enabled: true
       storageClassName: my-gitaly-storage
+  gitlab:
+    migrations:
+      initialRootPassword:
+        key: "admin"

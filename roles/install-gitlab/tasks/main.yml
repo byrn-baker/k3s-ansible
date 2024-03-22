@@ -11,12 +11,12 @@
       repo_url: https://charts.gitlab.io/
       force_update: yes
   
-  - name: Create gitlab namespace
-    kubernetes.core.k8s:
-      api_version: v1
-      kind: Namespace
-      name: gitlab
-      state: present
+  # - name: Create gitlab namespace
+  #   kubernetes.core.k8s:
+  #     api_version: v1
+  #     kind: Namespace
+  #     name: gitlab
+  #     state: present
 
   - name: Install gitlab Helm chart
     kubernetes.core.helm:

@@ -65,7 +65,9 @@
         become: true
 
       - name: Format the disk
-        command: mkfs.ext4 /dev/sdb
+        ansible.builtin.filesystem:
+          fstype: ext4
+          dev: /dev/sdb
         become: true
       
       - name: Create directory
