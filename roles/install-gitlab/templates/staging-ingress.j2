@@ -72,13 +72,12 @@ metadata:
   namespace: default
   annotations:
     kubernetes.io/ingress.class: traefik-external
-
 spec:
   entryPoints:
-    - gitlab-shell
+    - gitlab-ssh
   routes:
-    - match: HostSNI('*')
+    - match: HostSNI(`*`)
       kind: Rule
       services:
-        - name: gitlab-gitlab-shell 
+        - name: gitlab-gitlab-shell
           port: 22

@@ -77,7 +77,7 @@ metadata:
     kubernetes.io/ingress.class: traefik-external
 spec:
   entryPoints:
-    - ssh
+    - gitlab-ssh
   routes:
     - match: HostSNI(`*`)
       kind: Rule
