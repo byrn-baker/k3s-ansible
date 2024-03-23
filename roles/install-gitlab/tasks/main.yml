@@ -25,9 +25,6 @@
       release_namespace: default
       values: "{{ staging_gitlab_values }}"
       state: present
-  tags: staging-install
-
-- block:
   - name: Apply Traefik-Gitlab staging ingress
     community.kubernetes.k8s:
       state: present
@@ -36,19 +33,16 @@
   tags: staging-ingress
 
 - block:
-  - name: Install gitlab-production Helm chart
-    kubernetes.core.helm:
-      name: gitlab
-      chart_ref: gitlab/gitlab
-      release_namespace: default
-      values: "{{ production_gitlab_values }}"
-      state: present
-  tags: production-install
-
-- block:
+  # - name: Install gitlab-production Helm chart
+  #   kubernetes.core.helm:
+  #     name: gitlab
+  #     chart_ref: gitlab/gitlab
+  #     release_namespace: default
+  #     values: "{{ production_gitlab_values }}"
+  #     state: present
   - name: Apply Traefik-Gitlab production ingress
     community.kubernetes.k8s:
       state: present
       definition: "{{ lookup('template', 'prod-ingress.j2') }}"
     register: ingress_output
-  tags: production-ingress
+  tags: production-install

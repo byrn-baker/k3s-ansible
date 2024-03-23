@@ -23,7 +23,11 @@ traefik_values:
     websecure:
       tls:
         enabled: true
-        
+    ssh:
+      port: 22
+      expose: true
+      exposedPort: 22
+      protocol: TCP
   ingressRoute:
     dashboard:
       enabled: false

@@ -64,3 +64,21 @@ spec:
           port: 5000
   tls:
     secretName: local-byrnbaker-me-staging-tls
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: gitlab-ssh
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: traefik-external
+
+spec:
+  entryPoints:
+    - gitlab-shell
+  routes:
+    - match: HostSNI('*')
+      kind: Rule
+      services:
+        - name: gitlab-gitlab-shell 
+          port: 22

@@ -4,10 +4,18 @@ staging_gitlab_values:
       domain: "{{ commonname | replace('*.', '') }}"
     edition: ce
     ingress:
-      enabled: false
-      configureCertmanager: false
+      enabled: true
+      provider: traefik
+      class: traefik-external
       annotations: 
         kubernetes.io/tls-acme: true
+        traefik.ingress.kubernetes.io/router.tls: "true"
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      configureCertmanager: false
+  gitlab-shell:
+    traefik:
+      entrypoint: "gitlab-shell"
+
   certmanager:
     install: false
   certmanager-issuer:
@@ -57,10 +65,17 @@ production_gitlab_values:
       domain: "{{ commonname | replace('*.', '') }}"
     edition: ce
     ingress:
-      enabled: false
-      configureCertmanager: false
+      enabled: true
+      provider: traefik
+      class: traefik-external
       annotations: 
         kubernetes.io/tls-acme: true
+        traefik.ingress.kubernetes.io/router.tls: "true"
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      configureCertmanager: false
+  gitlab-shell:
+    traefik:
+      entrypoint: "gitlab-shell"
   certmanager:
     install: false
   certmanager-issuer:

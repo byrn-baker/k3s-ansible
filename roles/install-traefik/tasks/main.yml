@@ -59,6 +59,7 @@
     kubernetes.core.k8s:
       state: present
       definition: "{{ lookup('template', 'middleware.j2') }}"
+  tags: install
 
 - block:
   - name: Apply Traefik ingress
