@@ -45,6 +45,10 @@
   with_items: "{{ groups[group_name_master | default('master')] }}"
   run_once: true
 
+- name: Wait for 1 minute
+  pause:
+    minutes: 1
+
 - name: Wait for MetalLB resources
   command: >-
     k3s kubectl wait {{ item.resource }}

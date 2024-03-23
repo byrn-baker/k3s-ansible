@@ -1,16 +1,19 @@
-gitlab_values:
+staging_gitlab_values:
   global:
     hosts:
       domain: "{{ commonname | replace('*.', '') }}"
-      externalIP: 192.168.30.82
     edition: ce
+    ingress:
+      enabled: false
+      configureCertmanager: false
+      annotations: 
+        kubernetes.io/tls-acme: true
   certmanager:
     install: false
   certmanager-issuer:
     email: "{{ cf_email }}"
-  ingress:
-    tls:
-      secretName: local-byrnbaker-me-staging-tls
+  nginx-ingress:
+    enabled: false
   postgresql:
     image:
       tag: 13.6.0
@@ -19,7 +22,84 @@ gitlab_values:
     gitaly:
       enabled: true
       storageClassName: my-gitaly-storage
+      
+  # CUSTOM - Required for separately managed certmanager
+  registry:
+    ingress:
+      tls:
+        secretName: local-byrnbaker-me-staging-tls
+  minio:
+    ingress:
+      tls:
+        secretName: local-byrnbaker-me-staging-tls
   gitlab:
     migrations:
       initialRootPassword:
         key: "admin"
+    gitlab-pages:
+      ingress:
+        tls:
+          secretName: local-byrnbaker-me-staging-tls
+    webservice:
+      ingress:
+        path: 
+        tls:
+          secretName: local-byrnbaker-me-staging-tls
+    toolbox:
+      replicas: 1
+      antiAffinityLabels:
+        matchLabels:
+          app: 'gitaly'
+
+production_gitlab_values:
+  global:
+    hosts:
+      domain: "{{ commonname | replace('*.', '') }}"
+    edition: ce
+    ingress:
+      enabled: false
+      configureCertmanager: false
+      annotations: 
+        kubernetes.io/tls-acme: true
+  certmanager:
+    install: false
+  certmanager-issuer:
+    email: "{{ cf_email }}"
+  nginx-ingress:
+    enabled: false
+  postgresql:
+    image:
+      tag: 13.6.0
+  persistence:
+    enabled: true
+    gitaly:
+      enabled: true
+      storageClassName: my-gitaly-storage
+      
+  # CUSTOM - Required for separately managed certmanager
+  registry:
+    ingress:
+      tls:
+        secretName: local-byrnbaker-me-tls
+  minio:
+    ingress:
+      tls:
+        secretName: local-byrnbaker-me-tls
+  gitlab:
+    migrations:
+      initialRootPassword:
+        key: "admin"
+    gitlab-pages:
+      ingress:
+        tls:
+          secretName: local-byrnbaker-me-tls
+    webservice:
+      ingress:
+        path: 
+        tls:
+          secretName: local-byrnbaker-me-tls
+    toolbox:
+      replicas: 1
+      antiAffinityLabels:
+        matchLabels:
+          app: 'gitaly'

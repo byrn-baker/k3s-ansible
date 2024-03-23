@@ -16,7 +16,7 @@
       when: prox_api is defined
 
 - name: Create and Mount NFS share to VMs
-  hosts: all
+  hosts: node
   gather_facts: true
 
   tasks:
@@ -75,6 +75,7 @@
           path: /mnt/iscsi
           state: directory
           mode: '0755'
+        become: true
 
       - name: Mount the disk
         mount:

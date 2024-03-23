@@ -60,8 +60,16 @@
       state: present
       definition: "{{ lookup('template', 'middleware.j2') }}"
 
+- block:
   - name: Apply Traefik ingress
     kubernetes.core.k8s:
       state: present
       definition: "{{ lookup('template', 'staging-ingress.j2') }}"
-  tags: install
+  tags: staging
+  
+- block:
+  - name: Apply Production Traefik ingress
+    kubernetes.core.k8s:
+      state: present
+      definition: "{{ lookup('template', 'production-ingress.j2') }}"
+  tags: production

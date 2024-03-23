@@ -53,6 +53,7 @@
         namespace: cattle-system
       spec:
         type: LoadBalancer
+        loadBalancerIP: "{{ rancher_lb_ip }}"
         ports:
         - port: 443
           targetPort: 443

@@ -6,6 +6,7 @@ metadata:
   namespace: default
   annotations:
     kubernetes.io/ingress.class: traefik-external
+
 spec:
   entryPoints:
     - websecure
@@ -25,7 +26,7 @@ spec:
         - name: default-headers
           namespace: default
   tls:
-    secretName: local-byrnbaker-me-staging-tls
+    secretName: local-byrnbaker-me-tls
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
@@ -34,6 +35,7 @@ metadata:
   namespace: default
   annotations:
     kubernetes.io/ingress.class: traefik-external
+
 spec:
   entryPoints:
     - websecure
@@ -44,7 +46,7 @@ spec:
         - name: gitlab-minio-svc
           port: 9000
   tls:
-    secretName: local-byrnbaker-me-staging-tls
+    secretName: local-byrnbaker-me-tls
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
@@ -53,6 +55,7 @@ metadata:
   namespace: default
   annotations:
     kubernetes.io/ingress.class: traefik-external
+
 spec:
   entryPoints:
     - websecure
@@ -63,4 +66,4 @@ spec:
         - name: gitlab-registry
           port: 5000
   tls:
-    secretName: local-byrnbaker-me-staging-tls
+    secretName: local-byrnbaker-me-tls
