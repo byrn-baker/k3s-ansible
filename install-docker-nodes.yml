@@ -1,0 +1,58 @@
+---
+- name: Install Docker on k3s worker nodes
+  hosts: node
+  become: yes
+  tasks:
+    - name: install ca-certificates curl
+      command: apt-get install ca-certificates curl
+
+    - name: /etc/apt/keyrings
+      command: install -m 0755 -d /etc/apt/keyrings
+  
+
+    - name: /etc/apt/keyrings/docker.asc
+      command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+
+    
+    - name: chmod a+r /etc/apt/keyrings/docker.asc
+      command: chmod a+r /etc/apt/keyrings/docker.asc
+
+    - name: Get the system architecture
+      command: dpkg --print-architecture
+      register: system_architecture
+      changed_when: false
+
+    - name: Get the Ubuntu codename
+      command: bash -c ". /etc/os-release && echo $VERSION_CODENAME"
+      register: ubuntu_codename
+      changed_when: false
+
+    - name: Add Docker's official apt repository
+      copy:
+        dest: /etc/apt/sources.list.d/docker.list
+        content: |
+          deb [arch={{ system_architecture.stdout }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ubuntu_codename.stdout }} stable
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Apt Update
+      command: apt-get update
+  
+    - name: Install Docker CE and additional packages
+      apt:
+        name: "{{ docker_packages }}"
+        state: latest
+      vars:
+        docker_packages:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+        - docker-buildx-plugin
+        - docker-compose-plugin
+    
+    - name: Ensure Docker service is running
+      service:
+        name: docker
+        state: started
+        enabled: yes
