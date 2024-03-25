@@ -1,0 +1,5 @@
+racnher_ui_values:
+  hostname: "{{ rancher_hostname}}"
+  replicas: 1
+  bootstrapPassword: "{{ rancher_password }}"
+  version: "{{ rancher_version }}"

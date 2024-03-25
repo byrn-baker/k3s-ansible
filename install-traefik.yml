@@ -2,6 +2,7 @@
 
 ## Example 
 ## ansible-playbook install-traefik.yml --tags "install"
+## ansible-playbook install-traefik.yml --tags "production"
 
 
 - name: Install Traefik on k3s

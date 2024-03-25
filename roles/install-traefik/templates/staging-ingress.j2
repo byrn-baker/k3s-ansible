@@ -2,7 +2,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
   name: traefik-dashboard
-  namespace: traefik
+  namespace: default
   annotations: 
     kubernetes.io/ingress.class: traefik-external
 spec:
@@ -13,7 +13,7 @@ spec:
       kind: Rule
       middlewares:
         - name: traefik-dashboard-basicauth
-          namespace: traefik
+          namespace: default
       services:
         - name: api@internal
           kind: TraefikService

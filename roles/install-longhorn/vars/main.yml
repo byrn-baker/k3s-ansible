@@ -1,0 +1,4 @@
+---
+longhorn_values:
+  defaultSettings:
+    defaultReplicaCount: 2

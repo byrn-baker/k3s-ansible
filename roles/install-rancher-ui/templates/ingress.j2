@@ -1,7 +1,7 @@
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
-  name: rancher-ui
+  name: rancher-ui-ingress
   namespace: cattle-system
   annotations: 
     kubernetes.io/ingress.class: traefik-external
@@ -13,7 +13,6 @@ spec:
       kind: Rule
       services:
         - name: rancher
-          kind: Service
           port: 443
   tls:
-    secretName: local-byrnbaker-me-staging-tls
+    secretName: local-byrnbaker-me-tls

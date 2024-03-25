@@ -32,71 +32,12 @@
     name: rancher
     chart_ref: rancher-stable/rancher
     release_namespace: cattle-system
-    values: 
-      hostname: "{{ rancher_hostname}}"
-      replicas: 1
-      bootstrapPassword: "{{ rancher_password }}"
-      version: "{{ rancher_version }}"
-      # ingress.tls.source: "letsEncrypt"
-      # ingress.tls.email: "{{ cf_email }}"
-      # letsEncrypt.ingress.class: "traefik-external"
+    values: "{{racnher_ui_values}}"
     state: present
 
-- name: Expose Rancher deployment
-  kubernetes.core.k8s:
-    state: present
-    definition:
-      apiVersion: v1
-      kind: Service
-      metadata:
-        name: rancher-lb
-        namespace: cattle-system
-      spec:
-        type: LoadBalancer
-        loadBalancerIP: "{{ rancher_lb_ip }}"
-        ports:
-        - port: 443
-          targetPort: 443
-        selector:
-          app: rancher
-
-# - name: Get information about rancher-lb service
-#   kubernetes.core.k8s_info:
-#     api_version: v1
-#     kind: Service
-#     name: rancher-lb
-#     namespace: cattle-system
-#   register: rancher_lb_service
-
-# - debug:
-#     var: rancher_lb_service
-
-# - name: Apply Longhorn YAML
-#   kubernetes.core.k8s:
-#     state: present
-#     src: https://raw.githubusercontent.com/longhorn/longhorn/master/deploy/longhorn.yaml
-
-# - name: Get pods in longhorn-system namespace
-#   kubernetes.core.k8s_info:
-#     kind: Pod
-#     namespace: longhorn-system
-#   register: longhorn_system_pods
-
-# - debug:
-#     var: longhorn_system_pods
-
-# - name: Create longhorn-system namespace
-#   kubernetes.core.k8s:
-#     state: present
-#     definition:
-#       apiVersion: v1
-#       kind: Namespace
-#       metadata:
-#         name: longhorn-system
-
-# - name: Install Longhorn Helm chart
-#   kubernetes.core.helm:
-#     name: longhorn
-#     chart_ref: ./longhorn/chart/
-#     release_namespace: longhorn-system
-#     state: present
+- block:
+  - name: Apply Production Traefik ingress for Rancher UI
+    kubernetes.core.k8s:
+      state: present
+      definition: "{{ lookup('template', 'ingress.j2') }}"
+  tags: production

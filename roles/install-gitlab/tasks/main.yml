@@ -25,6 +25,7 @@
       release_namespace: default
       values: "{{ staging_gitlab_values }}"
       state: present
+
   - name: Apply Traefik-Gitlab staging ingress
     community.kubernetes.k8s:
       state: present
@@ -33,6 +34,24 @@
   tags: staging-ingress
 
 - block:
+  - name: Add gitlab Helm repository
+    kubernetes.core.helm_repository:
+      name: gitlab
+      repo_url: https://charts.gitlab.io/
+
+  - name: Update Helm repositories
+    kubernetes.core.helm_repository:
+      name: gitlab
+      repo_url: https://charts.gitlab.io/
+      force_update: yes
+  
+  # - name: Create gitlab namespace
+  #   kubernetes.core.k8s:
+  #     api_version: v1
+  #     kind: Namespace
+  #     name: gitlab
+  #     state: present
+
   - name: Install gitlab-production Helm chart
     kubernetes.core.helm:
       name: gitlab
@@ -40,6 +59,7 @@
       release_namespace: default
       values: "{{ production_gitlab_values }}"
       state: present
+      
   - name: Apply Traefik-Gitlab production ingress
     community.kubernetes.k8s:
       state: present

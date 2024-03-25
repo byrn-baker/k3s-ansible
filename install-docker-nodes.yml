@@ -1,6 +1,6 @@
 ---
 - name: Install Docker on k3s worker nodes
-  hosts: node
+  hosts: gitlab-runner-vm01
   become: yes
   tasks:
     - name: install ca-certificates curl

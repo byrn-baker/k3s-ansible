@@ -12,9 +12,6 @@ staging_gitlab_values:
         traefik.ingress.kubernetes.io/router.tls: "true"
         traefik.ingress.kubernetes.io/router.entrypoints: websecure
       configureCertmanager: false
-  gitlab-shell:
-    traefik:
-      entrypoint: "gitlab-shell"
 
   certmanager:
     install: false
