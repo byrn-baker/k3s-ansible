@@ -1,43 +1,86 @@
 ---
-- name: Add Rancher Helm repository
-  kubernetes.core.helm_repository:
-    name: rancher
-    repo_url: https://releases.rancher.com/server-charts/stable
+- block: 
+  - name: Add Rancher Helm repository
+    kubernetes.core.helm_repository:
+      name: rancher
+      repo_url: https://releases.rancher.com/server-charts/stable
 
-- name: Update Helm Rancher repositories
-  kubernetes.core.helm_repository:
-    name: rancher
-    repo_url: https://releases.rancher.com/server-charts/stable
-    force_update: yes
+  - name: Update Helm Rancher repositories
+    kubernetes.core.helm_repository:
+      name: rancher
+      repo_url: https://releases.rancher.com/server-charts/stable
+      force_update: yes
 
-- name: Check if cert-manager is installed
-  kubernetes.core.k8s_info:
-    kind: Namespace
-    name: cert-manager
-  register: cert_manager_namespace
+  - name: Check if cert-manager is installed
+    kubernetes.core.k8s_info:
+      kind: Namespace
+      name: cert-manager
+    register: cert_manager_namespace
 
-- fail:
-    msg: "cert-manager is not installed. Please install cert-manager before proceeding."
-  when: cert_manager_namespace.resources | length == 0
+  - fail:
+      msg: "cert-manager is not installed. Please install cert-manager before proceeding."
+    when: cert_manager_namespace.resources | length == 0
 
-- name: Create cattle-system namespace
-  kubernetes.core.k8s:
-    api_version: v1
-    kind: Namespace
-    name: cattle-system
-    state: present
+  - name: Create cattle-system namespace
+    kubernetes.core.k8s:
+      api_version: v1
+      kind: Namespace
+      name: cattle-system
+      state: present
 
-- name: Install Rancher Helm chart
-  kubernetes.core.helm:
-    name: rancher
-    chart_ref: rancher-stable/rancher
-    release_namespace: cattle-system
-    values: "{{racnher_ui_values}}"
-    state: present
+  - name: Install Rancher Helm chart
+    kubernetes.core.helm:
+      name: rancher
+      chart_ref: rancher-stable/rancher
+      release_namespace: cattle-system
+      values: "{{staging_rancher_ui_values }}"
+      state: present
 
-- block:
   - name: Apply Production Traefik ingress for Rancher UI
     kubernetes.core.k8s:
       state: present
-      definition: "{{ lookup('template', 'ingress.j2') }}"
-  tags: production
+      definition: "{{ lookup('template', 'staging-ingress.j2') }}"
+  tags: staging-install
+
+- block:
+  - name: Add Rancher Helm repository
+    kubernetes.core.helm_repository:
+      name: rancher
+      repo_url: https://releases.rancher.com/server-charts/stable
+
+  - name: Update Helm Rancher repositories
+    kubernetes.core.helm_repository:
+      name: rancher
+      repo_url: https://releases.rancher.com/server-charts/stable
+      force_update: yes
+
+  - name: Check if cert-manager is installed
+    kubernetes.core.k8s_info:
+      kind: Namespace
+      name: cert-manager
+    register: cert_manager_namespace
+
+  - fail:
+      msg: "cert-manager is not installed. Please install cert-manager before proceeding."
+    when: cert_manager_namespace.resources | length == 0
+
+  - name: Create cattle-system namespace
+    kubernetes.core.k8s:
+      api_version: v1
+      kind: Namespace
+      name: cattle-system
+      state: present
+
+  - name: Install Rancher Helm chart
+    kubernetes.core.helm:
+      name: rancher
+      chart_ref: rancher-stable/rancher
+      release_namespace: cattle-system
+      values: "{{production_rancher_ui_values}}"
+      state: present
+
+  - name: Apply Production Traefik ingress for Rancher UI
+    kubernetes.core.k8s:
+      state: present
+      definition: "{{ lookup('template', 'production-ingress.j2') }}"
+  tags: production-install

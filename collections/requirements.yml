@@ -6,3 +6,4 @@ collections:
   - name: kubernetes.core
   - name: ansible.netcommon
   - name: community.crypto
+  - name: ansibleguy.opnsense

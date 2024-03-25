@@ -1,0 +1,4 @@
+- name: Install Longhorn on k3s
+  hosts: localhost
+  roles:
+    - install-longhorn

@@ -1,0 +1,21 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: nautobot
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: traefik-external
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`nautobot.{{ install_domain }}`)
+      kind: Rule
+      services:
+        - name: nautobot-default
+          port: 80
+      middlewares:
+        - name: default-headers
+  tls:
+    secretName: {{ production_secret }}

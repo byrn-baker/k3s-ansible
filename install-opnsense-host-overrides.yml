@@ -1,0 +1,31 @@
+- hosts: localhost
+  gather_facts: no
+  module_defaults:
+    group/ansibleguy.opnsense.all:
+      firewall: "{{ firewall_ip }}"
+      api_port: "{{ firewall_port }}"
+      api_key: "{{ opn_key }}"
+      api_secret: "{{ opn_secret }}"
+      ssl_verify: false
+  
+  tasks:
+    - set_fact:
+        overrides:
+          - hostname: 'traefik'
+          - hostname: 'rancher'
+          - hostname: 'gitlab'
+          - hostname: 'nautobot'
+
+
+    - name: Adding
+      ansibleguy.opnsense.unbound_host:
+        hostname: "{{ item.hostname }}"
+        domain: "{{ install_domain }}"
+        value: "{{ metal_lb_ip  }}"
+        description: "k3s redirect"
+        reload: false
+      loop: "{{ overrides }}"
+    
+    - name: Reloading
+      ansibleguy.opnsense.reload:
+        target: "unbound"

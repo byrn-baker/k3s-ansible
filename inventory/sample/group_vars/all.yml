@@ -4,13 +4,24 @@ k3s_version: v1.27.11+k3s1 # Use this version if you want to have the Rancher-UI
 ansible_user: ansibleuser
 ansible_pass: ubuntu
 systemd_dir: /etc/systemd/system
+install_domain: "homelab.byrnbaker.me"
+
+# OPNsense API - Use these if you have OPNsense firewall. This is used with the install-opnsense-host-overrides.yml to add host overrides to Unbound.
+firewall_ip: 
+firewall_port:
+opn_key: 
+opn_secret: 
+metal_lb_ip: 
 
 # Rancher Stuff
 rancher_version: "v2.8.2"
 rancher_hostname: rancher.local.example.com
+rancher_password:
 
 # Cert Manager Stuff
-certmanager_version: 
+certmanager_version: "1.14.1"
+staging_secret: local-exmaple-com-staging-tls
+production_secret: local-exmaple-com-tls
 commonname: "*.local.example.com"
 dnsnames: # for Cert manger setup provide a list of your domains 
   - "local.example.com"

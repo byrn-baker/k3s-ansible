@@ -28,7 +28,18 @@ In case you want to have the UI, I use it for navigating around and checking log
 
 ## Gitlab
 I like the idea of self hosting my code, so I thought it would be fun to have a local gitlab instance running. This way I can mess around with gitlab-ci and following along with [technotim](https://technotim.live/posts/self-hosted-devops-stack/). Includes ingress for both staging and production certificates.
-After installation completes use the following to get your initial root password - ```kubectl get secret gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 --decode ; echo```
+After installation completes use the following to get your initial root password - ```kubectl get secret gitlab-gitlab-initial-root-password -n gitlab -ojsonpath='{.data.password}' | base64 --decode ; echo```
+
+## Installing everything
+You can use the ```deploy.sh``` bash script and it will install everything listed above.
+
+## If you install with staging it is easy to switch to your production certificate
+You can use ```switch_deployment_to_production.sh``` bash script. This will flip all of the services installed to the real certificate from LetsEncrypt.
+
+## If you would to destroy the entire deployment
+To destroy the entire deployment you can use the ```destroy-k3s-vms.yml```. This will stop and remove the Proxmox VMs.
+
+
 
 ## Thanks 🤝
 This repo is really standing on the shoulders of giants. Thank you to all those who have contributed and thanks to these repos for code and ideas:

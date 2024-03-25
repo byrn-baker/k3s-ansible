@@ -4,3 +4,6 @@ ansible.cfg
 kubeconfig
 *.decrypted~*
 .decrypted~secret.yaml
+nautobot_secrets.yml
+generated_certificate/
+key.txt

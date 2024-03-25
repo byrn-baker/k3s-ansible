@@ -1,5 +1,17 @@
-racnher_ui_values:
+staging_rancher_ui_values:
   hostname: "{{ rancher_hostname}}"
-  replicas: 1
+  replicas: 3
   bootstrapPassword: "{{ rancher_password }}"
   version: "{{ rancher_version }}"
+  ingress:
+    tls: 
+      source: local-byrnbaker-me-staging-tls
+
+production_rancher_ui_values:
+  hostname: "{{ rancher_hostname}}"
+  replicas: 3
+  bootstrapPassword: "{{ rancher_password }}"
+  version: "{{ rancher_version }}"
+  ingress:
+    tls: 
+      source: local-byrnbaker-me-tls

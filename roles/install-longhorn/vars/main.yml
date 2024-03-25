@@ -1,4 +1,8 @@
 ---
-longhorn_values:
-  defaultSettings:
+staging_longhorn_values:
+  persistence:
+    defaultReplicaCount: 2
+
+production_longhorn_values:
+  persistence:
     defaultReplicaCount: 2

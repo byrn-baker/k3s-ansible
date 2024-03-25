@@ -1,6 +1,6 @@
 ---
 - name: Pre tasks
-  hosts: all
+  hosts: k3s_cluster
   pre_tasks:
     - name: Verify Ansible is version 2.11 or above. (If this fails you may need to update Ansible)
       assert:

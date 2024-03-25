@@ -2,12 +2,17 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: local-byrnbaker-me
+  name: staging-local-byrnbaker-me
   namespace: default
 spec:
-  secretName: local-byrnbaker-me-staging-tls
+  secretName: {{ staging_secret }}
+  commonName: "{{ commonname }}"
+  dnsNames: {{ dnsnames }}
   issuerRef:
     name: letsencrypt-staging
     kind: ClusterIssuer
-  commonName: "{{ commonname }}"
-  dnsNames: {{ dnsnames }}
+  secretTemplate:
+    annotations:
+      reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+      reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+      reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "traefik,gitlab,cattle-system,nautobot"

@@ -3,7 +3,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
   name: gitlab
-  namespace: default
+  namespace: gitlab
   annotations:
     kubernetes.io/ingress.class: traefik-external
 
@@ -12,27 +12,27 @@ spec:
     - websecure
     - web
   routes:
-    - match: Host(`gitlab.local.byrnbaker.me`) && PathPrefix(`/admin/sidekiq`)
+    - match: Host(`gitlab.{{ install_domain }}`) && PathPrefix(`/admin/sidekiq`)
       kind: Rule
       services:
         - name: gitlab-webservice-default
           port: 8080
-    - match: Host(`gitlab.local.byrnbaker.me`)
+    - match: Host(`gitlab.{{ install_domain }}`)
       kind: Rule
       services:
         - name: gitlab-webservice-default
           port: 8181
       middlewares:
         - name: default-headers
-          namespace: default
+          namespace: gitlab
   tls:
-    secretName: local-byrnbaker-me-tls
+    secretName: {{ production_secret }}
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
   name: minio
-  namespace: default
+  namespace: gitlab
   annotations:
     kubernetes.io/ingress.class: traefik-external
 
@@ -40,19 +40,19 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`minio.local.byrnbaker.me`)
+    - match: Host(`minio.{{ install_domain }}`)
       kind: Rule
       services:
         - name: gitlab-minio-svc
           port: 9000
   tls:
-    secretName: local-byrnbaker-me-tls
+    secretName: {{ production_secret }}
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
   name: registry
-  namespace: default
+  namespace: gitlab
   annotations:
     kubernetes.io/ingress.class: traefik-external
 
@@ -60,19 +60,19 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`registry.local.byrnbaker.me`)
+    - match: Host(`registry.{{ install_domain }}`)
       kind: Rule
       services:
         - name: gitlab-registry
           port: 5000
   tls:
-    secretName: local-byrnbaker-me-tls
+    secretName: {{ production_secret }}
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRouteTCP
 metadata:
   name: gitlab-ssh
-  namespace: default
+  namespace: gitlab
   annotations:
     kubernetes.io/ingress.class: traefik-external
 spec:

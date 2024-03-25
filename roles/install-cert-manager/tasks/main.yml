@@ -37,16 +37,31 @@
     kubernetes.core.k8s:
       state: present
       definition: "{{ lookup('template', 'secret-cf-token.j2') }}"
-  tags: install
+  
+  - name: Add emberstack Helm repository
+    kubernetes.core.helm_repository:
+      name: emberstack
+      repo_url: https://emberstack.github.io/helm-charts
 
-### Staging Cert  
-- block:
+  - name: Update Helm repository
+    kubernetes.core.helm_repository:
+      name: emberstack
+      repo_url: https://emberstack.github.io/helm-charts
+      force_update: yes
+
+  - name: Install reflector Helm chart
+    kubernetes.core.helm:
+      name: reflector
+      chart_ref: emberstack/reflector
+      release_namespace: default
+      state: present
+      
   - name: Apply Staging ClusterIssuer
     kubernetes.core.k8s:
       state: present
       definition: "{{ lookup('template', 'letsencrypt-staging.j2') }}"
 
-  - name: Apply Generate Stagging Certificate
+  - name: Generate Staging Certificate
     kubernetes.core.k8s:
       state: present
       definition: "{{ lookup('template', 'stage-local-byrnbaker-me.j2') }}"
@@ -59,10 +74,72 @@
     until: result.resources | length == 0
     retries: 20
     delay: 30
-  tags: staging
+  
+  - name: Capture the certificate for use later
+    shell: |
+      kubectl get secret {{ staging_secret }} -n default -o jsonpath="{.data.tls\.crt}" | base64 --decode > ./generated_certificate/staging-tls.crt
+  - name: Capture the certificate for use later
+    shell: |
+      kubectl get secret {{ staging_secret }} -n default -o jsonpath="{.data.tls\.key}" | base64 --decode > ./generated_certificate/staging-tls.key
+  tags: staging-install
 
-### Production Cert
+### Production install
 - block:
+  - name: Add jetstack Helm repository
+    kubernetes.core.helm_repository:
+      name: jetstack
+      repo_url: https://charts.jetstack.io
+
+  - name: Update Helm jetstack repositories
+    kubernetes.core.helm_repository:
+      name: jetstack
+      repo_url: https://charts.jetstack.io
+      force_update: yes
+
+  - name: Create cert-manager namespace
+    kubernetes.core.k8s:
+      api_version: v1
+      kind: Namespace
+      name: cert-manager
+      state: present
+
+  - name: Apply cert-manager CRDs
+    kubernetes.core.k8s:
+      state: present
+      src: "https://github.com/cert-manager/cert-manager/releases/download/v{{certmanager_version}}/cert-manager.crds.yaml"
+
+  - name: Install cert-manager Helm chart
+    kubernetes.core.helm:
+      name: cert-manager
+      chart_ref: jetstack/cert-manager
+      release_namespace: cert-manager
+      values: "{{ cert_manager }}"
+      chart_version: "{{ certmanager_version }}"
+      state: present
+
+  - name: Apply issuers secrets
+    kubernetes.core.k8s:
+      state: present
+      definition: "{{ lookup('template', 'secret-cf-token.j2') }}"
+
+  - name: Add emberstack Helm repository
+    kubernetes.core.helm_repository:
+      name: emberstack
+      repo_url: https://emberstack.github.io/helm-charts
+
+  - name: Update Helm repository
+    kubernetes.core.helm_repository:
+      name: emberstack
+      repo_url: https://emberstack.github.io/helm-charts
+      force_update: yes
+
+  - name: Install reflector Helm chart
+    kubernetes.core.helm:
+      name: reflector
+      chart_ref: emberstack/reflector
+      release_namespace: default
+      state: present
+
   - name: Apply Production ClusterIssuer
     kubernetes.core.k8s:
       state: present
@@ -72,6 +149,7 @@
     kubernetes.core.k8s:
       state: present
       definition: "{{ lookup('template', 'prod-local-byrnbaker-me.j2') }}"
+      
   - name: Get challenges
     kubernetes.core.k8s_info:
       kind: Challenge
@@ -80,5 +158,12 @@
     until: result.resources | length == 0
     retries: 20
     delay: 30
-  tags: production
+
+  - name: Capture the certificate for use later
+    shell: |
+      kubectl get secret {{ production_secret }} -n default -o jsonpath="{.data.tls\.crt}" | base64 --decode > ./generated_certificate/production-tls.crt
+  - name: Capture the certificate for use later
+    shell: |
+      kubectl get secret {{ production_secret }} -n default -o jsonpath="{.data.tls\.key}" | base64 --decode > ./generated_certificate/production-tls.key
+  tags: production-install
 

@@ -5,9 +5,14 @@ metadata:
   name: local-byrnbaker-me
   namespace: default
 spec:
-  secretName: local-byrnbaker-me-tls
+  secretName: {{ production_secret }}
+  commonName: "{{ commonname }}"
+  dnsNames: {{ dnsnames }}
   issuerRef:
     name: letsencrypt-production
     kind: ClusterIssuer
-  commonName: "{{ commonname }}"
-  dnsNames: {{ dnsnames }}
+  secretTemplate:
+    annotations:
+      reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+      reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+      reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "traefik,gitlab,cattle-system,nautobot"

@@ -1,5 +1,0 @@
----
-- name: Deploy Ingress Routes for local services on Traefik
-  hosts: localhost
-  roles:
-    - enable-internal-web-services-traefik

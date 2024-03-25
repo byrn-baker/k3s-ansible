@@ -9,10 +9,10 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`rancher.local.byrnbaker.me`)
+    - match: Host(`rancher.{{ install_domain }}`)
       kind: Rule
       services:
         - name: rancher
           port: 443
   tls:
-    secretName: local-byrnbaker-me-tls
+    secretName: {{ production_secret }}

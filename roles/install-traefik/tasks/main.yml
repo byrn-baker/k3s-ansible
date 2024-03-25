@@ -11,12 +11,12 @@
       repo_url: https://helm.traefik.io/traefik
       force_update: yes
 
-  # - name: Create Traefik namespace
-  #   kubernetes.core.k8s:
-  #     api_version: v1
-  #     kind: Namespace
-  #     name: traefik
-  #     state: present
+  - name: Create Traefik namespace
+    kubernetes.core.k8s:
+      api_version: v1
+      kind: Namespace
+      name: traefik
+      state: present
 
   - name: Install Traefik Helm chart
     kubernetes.core.helm:
@@ -52,25 +52,82 @@
   - name: Get secrets in Traefik namespace
     kubernetes.core.k8s_info:
       kind: Secret
-      namespace: traefik
+      namespace: default
     register: secrets
 
   - name: Apply middleware
     kubernetes.core.k8s:
       state: present
       definition: "{{ lookup('template', 'middleware.j2') }}"
-  tags: install
-
-- block:
+  
   - name: Apply Traefik ingress
     kubernetes.core.k8s:
       state: present
       definition: "{{ lookup('template', 'staging-ingress.j2') }}"
-  tags: staging
-  
+  tags: staging-install
+ 
 - block:
+  - name: Add Traefik Helm repository
+    kubernetes.core.helm_repository:
+      name: traefik
+      repo_url: https://helm.traefik.io/traefik
+
+  - name: Update Helm repositories
+    kubernetes.core.helm_repository:
+      name: traefik
+      repo_url: https://helm.traefik.io/traefik
+      force_update: yes
+
+  - name: Create Traefik namespace
+    kubernetes.core.k8s:
+      api_version: v1
+      kind: Namespace
+      name: traefik
+      state: present
+
+  - name: Install Traefik Helm chart
+    kubernetes.core.helm:
+      name: traefik
+      chart_ref: traefik/traefik
+      release_namespace: kube-system
+      values: "{{ traefik_values }}"
+      state: present
+
+  - name: Apply default headers
+    kubernetes.core.k8s:
+      state: present
+      definition: "{{ lookup('template', 'default-headers.j2') }}"
+
+  - name: Get middleware
+    kubernetes.core.k8s_info:
+      kind: Middleware
+      namespace: default
+    register: middleware
+
+  - name: Generate base64-encoded admin password
+    shell: htpasswd -nb admin password | openssl base64
+    register: base64_password
+
+  - debug:
+      var: base64_password.stdout
+
+  - name: Apply Traefik dashboard secret
+    kubernetes.core.k8s:
+      state: present
+      definition: "{{ lookup('template', 'secret-dashboard.j2') }}"
+
+  - name: Get secrets in Traefik namespace
+    kubernetes.core.k8s_info:
+      kind: Secret
+      namespace: default
+    register: secrets
+
+  - name: Apply middleware
+    kubernetes.core.k8s:
+      state: present
+      definition: "{{ lookup('template', 'middleware.j2') }}"
   - name: Apply Production Traefik ingress
     kubernetes.core.k8s:
       state: present
       definition: "{{ lookup('template', 'production-ingress.j2') }}"
-  tags: production
+  tags: production-install
