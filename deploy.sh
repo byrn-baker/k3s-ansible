@@ -13,6 +13,5 @@ ansible-playbook site.yml
 ansible-playbook install-traefik.yml --tags "$installation_type"
 ansible-playbook install-cert-manager.yml --tags "$installation_type"
 ansible-playbook install-rancher-ui.yml --tags "$installation_type"
-ansible-playbook install-longhorn.yml --tags "$installation_type"
-ansible-playbook install-gitlab.yml --tags "$installation_type"
+
 ansible-playbook install-opnsense-host-overrides.yml

@@ -4,6 +4,7 @@
     kubernetes.core.helm_repository:
       name: longhorn
       repo_url: https://charts.longhorn.io
+    ignore_errors: true
 
   - name: Update Helm repositories
     kubernetes.core.helm_repository:
@@ -24,6 +25,7 @@
       chart_ref: longhorn/longhorn
       release_namespace: longhorn-system
       values: "{{ staging_longhorn_values }}"
+      chart_version: 1.6.0
       state: present
 
   - name: Apply Production Traefik ingress for Longhorn UI
@@ -57,6 +59,7 @@
       chart_ref: longhorn/longhorn
       release_namespace: longhorn-system
       values: "{{ production_longhorn_values }}"
+      chart_version: 1.6.0
       state: present
   
   - name: Apply Production Traefik ingress for Longhorn UI

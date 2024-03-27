@@ -1,5 +1,5 @@
 ---
-# ansible-playbook install-gitlab.yml --tags "staging-ingress"
+# ansible-playbook install-gitlab.yml --tags "staging-install"
 # ansible-playbook install-gitlab.yml --tags "production-install"
 - name: Install Gitlab on k3s
   hosts: localhost
