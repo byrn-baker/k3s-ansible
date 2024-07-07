@@ -28,10 +28,10 @@
       chart_version: 1.6.0
       state: present
 
-  - name: Apply Production Traefik ingress for Longhorn UI
-    kubernetes.core.k8s:
-      state: present
-      definition: "{{ lookup('template', 'staging-ingress.j2') }}"
+  # - name: Apply Production Traefik ingress for Longhorn UI
+  #   kubernetes.core.k8s:
+  #     state: present
+  #     definition: "{{ lookup('template', 'staging-ingress.j2') }}"
   tags: staging-install
 
 - block: 

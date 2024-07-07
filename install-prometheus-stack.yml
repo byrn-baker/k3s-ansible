@@ -1,0 +1,5 @@
+---
+- name: Install Prometheus on k3s
+  hosts: localhost
+  roles:
+    - install-prometheus

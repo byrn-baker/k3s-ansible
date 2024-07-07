@@ -2,7 +2,7 @@
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
-  name: nautobot
+  name: prometheus
   namespace: default
   annotations:
     kubernetes.io/ingress.class: traefik-external
@@ -10,10 +10,10 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`nautobot.{{ install_domain }}`)
+    - match: Host(`grafana.{{ install_domain }}`)
       kind: Rule
       services:
-        - name: nautobot-default
+        - name: prometheus-grafana
           port: 80
       middlewares:
         - name: default-headers

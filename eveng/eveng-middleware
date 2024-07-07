@@ -1,0 +1,9 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect-to-external
+spec:
+  redirectRegex:
+    regex: "^https://eve-ng.homelab.byrnbaker.me/(.*)"
+    replacement: "https://eveng.byrnbaker.me/$1"
+    permanent: true

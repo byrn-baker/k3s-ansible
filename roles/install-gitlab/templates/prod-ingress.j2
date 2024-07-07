@@ -12,12 +12,12 @@ spec:
     - websecure
     - web
   routes:
-    - match: Host(`gitlab.{{ install_domain }}`) && PathPrefix(`/admin/sidekiq`)
+    - match: Host(`gitlab.{{ public_domain }}`) && PathPrefix(`/admin/sidekiq`)
       kind: Rule
       services:
         - name: gitlab-webservice-default
           port: 8080
-    - match: Host(`gitlab.{{ install_domain }}`)
+    - match: Host(`gitlab.{{ public_domain }}`)
       kind: Rule
       services:
         - name: gitlab-webservice-default
@@ -26,7 +26,7 @@ spec:
         - name: default-headers
           namespace: gitlab
   tls:
-    secretName: {{ production_secret }}
+    secretName: gitlab-{{ root_domain_secret }}-tls
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
@@ -40,13 +40,13 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`minio.{{ install_domain }}`)
+    - match: Host(`minio.{{ public_domain }}`)
       kind: Rule
       services:
         - name: gitlab-minio-svc
           port: 9000
   tls:
-    secretName: {{ production_secret }}
+    secretName: gitlab-{{ root_domain_secret }}-tls
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
@@ -60,13 +60,33 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`registry.{{ install_domain }}`)
+    - match: Host(`registry.{{ public_domain }}`)
       kind: Rule
       services:
         - name: gitlab-registry
           port: 5000
   tls:
-    secretName: {{ production_secret }}
+    secretName: gitlab-{{ root_domain_secret }}-tls
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: kas
+  namespace: gitlab
+  annotations:
+    kubernetes.io/ingress.class: traefik-external
+
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`kas.{{ public_domain }}`)
+      kind: Rule
+      services:
+        - name: gitlab-kas
+          port: 8150
+  tls:
+    secretName: gitlab-{{ root_domain_secret }}-tls
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRouteTCP

@@ -167,3 +167,83 @@
       kubectl get secret {{ production_secret }} -n default -o jsonpath="{.data.tls\.key}" | base64 --decode > ./generated_certificate/production-tls.key
   tags: production-install
 
+- block: 
+  - name: Generate Staging Certificate
+    kubernetes.core.k8s:
+      state: present
+      definition: "{{ lookup('template', 'stage-blog-byrnbaker-me.j2') }}"
+
+  - name: Get challenges
+    kubernetes.core.k8s_info:
+      kind: Challenge
+      namespace: default
+    register: result
+    until: result.resources | length == 0
+    retries: 20
+    delay: 30
+  
+  - name: Capture the certificate for use later
+    shell: |
+      kubectl get secret staging-blog-{{ root_domain_secret }}-tls -n default -o jsonpath="{.data.tls\.crt}" | base64 --decode > ./generated_certificate/staging-blog-{{ root_domain_secret }}-tls.crt
+  - name: Capture the certificate for use later
+    shell: |
+      kubectl get secret staging-blog-{{ root_domain_secret }}-tls -n default -o jsonpath="{.data.tls\.key}" | base64 --decode > ./generated_certificate/staging-blog-{{ root_domain_secret }}-tls.key
+  tags: staging-blog-tls
+
+- block: 
+  - name: Generate production Certificate
+    kubernetes.core.k8s:
+      state: present
+      definition: "{{ lookup('template', 'prod-blog-byrnbaker-me.j2') }}"
+
+  - name: Get challenges
+    kubernetes.core.k8s_info:
+      kind: Challenge
+      namespace: default
+    register: result
+    until: result.resources | length == 0
+    retries: 20
+    delay: 30
+  
+  - name: Capture the certificate for use later
+    shell: |
+      kubectl get secret prod-blog-{{ root_domain_secret }}-tls -n default -o jsonpath="{.data.tls\.crt}" | base64 --decode > ./generated_certificate/prod-blog-{{ root_domain_secret }}-tls.crt
+  - name: Capture the certificate for use later
+    shell: |
+      kubectl get secret prod-blog-{{ root_domain_secret }}-tls -n default -o jsonpath="{.data.tls\.key}" | base64 --decode > ./generated_certificate/prod-blog-{{ root_domain_secret }}-tls.key
+  tags: prod-blog-tls
+
+- block:
+    # - name: Apply service-key and issuer
+    #   kubernetes.core.k8s:
+    #     state: present
+    #     src: 
+    #       - "{{ lookup('template', 'cf_prod_issuer.j2') }}"
+    #       - "{{ lookup('template', 'service_key.j2') }}"
+
+    # - name: Apply Production Certificate
+    #   kubernetes.core.k8s:
+    #     state: present
+    #     definition: "{{ lookup('template', 'cf_origin_cert.j2') }}"
+    
+    - name: Apply Production Certificate
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('template', 'prod-byrnbaker-me.j2') }}"
+    
+    - name: Get challenges
+      kubernetes.core.k8s_info:
+        kind: Challenge
+        namespace: default
+      register: result
+      until: result.resources | length == 0
+      retries: 20
+      delay: 30
+
+    - name: Capture the certificate for use later
+      shell: |
+        kubectl get secret {{ root_domain_secret }} -n default -o jsonpath="{.data.tls\.crt}" | base64 --decode > ./generated_certificate/byrnbaker-wildcard-tls.crt
+    - name: Capture the certificate for use later
+      shell: |
+        kubectl get secret {{ root_domain_secret }} -n default -o jsonpath="{.data.tls\.key}" | base64 --decode > ./generated_certificate/byrnbaker-wildcard-tls.key
+  tags: root-tls

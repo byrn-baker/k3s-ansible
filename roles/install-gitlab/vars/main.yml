@@ -32,11 +32,11 @@ staging_gitlab_values:
   registry:
     ingress:
       tls:
-        secretName: local-byrnbaker-me-staging-tls
+        secretName: "{{ staging_secret }}"
   minio:
     ingress:
       tls:
-        secretName: local-byrnbaker-me-staging-tls
+        secretName: "{{ staging_secret }}"
   gitlab:
     migrations:
       initialRootPassword:
@@ -44,12 +44,12 @@ staging_gitlab_values:
     gitlab-pages:
       ingress:
         tls:
-          secretName: local-byrnbaker-me-staging-tls
+          secretName: "{{ staging_secret }}"
     webservice:
       ingress:
         path: 
         tls:
-          secretName: local-byrnbaker-me-staging-tls
+          secretName: "{{ staging_secret }}"
     toolbox:
       replicas: 1
       antiAffinityLabels:
@@ -59,7 +59,7 @@ staging_gitlab_values:
 production_gitlab_values:
   global:
     hosts:
-      domain: "{{ commonname | replace('*.', '') }}"
+      domain: "{{ public_domain }}"
     edition: ce
     ingress:
       enabled: true
@@ -89,11 +89,11 @@ production_gitlab_values:
   registry:
     ingress:
       tls:
-        secretName: local-byrnbaker-me-tls
+        secretName: "gitlab-{{ root_domain_secret }}-tls"
   minio:
     ingress:
       tls:
-        secretName: local-byrnbaker-me-tls
+        secretName: "gitlab-{{ root_domain_secret }}-tls"
   gitlab:
     migrations:
       initialRootPassword:
@@ -101,12 +101,12 @@ production_gitlab_values:
     gitlab-pages:
       ingress:
         tls:
-          secretName: local-byrnbaker-me-tls
+          secretName: "gitlab-{{ root_domain_secret }}-tls"
     webservice:
       ingress:
         path: 
         tls:
-          secretName: local-byrnbaker-me-tls
+          secretName: "gitlab-{{ root_domain_secret }}-tls"
     toolbox:
       replicas: 1
       antiAffinityLabels:

@@ -1,0 +1,38 @@
+---
+### Installing Prometheus
+- block:
+  # - name: Add Prometheus Helm repository
+  #   kubernetes.core.helm_repository:
+  #     name: prometheus
+  #     repo_url: https://prometheus-community.github.io/helm-charts
+
+  # - name: Update Helm Prometheus repositories
+  #   kubernetes.core.helm_repository:
+  #     name: prometheus
+  #     repo_url: https://prometheus-community.github.io/helm-charts
+  #     force_update: yes
+
+  # - name: Create prometheus namespace
+  #   kubernetes.core.k8s:
+  #     api_version: v1
+  #     kind: Namespace
+  #     name: prometheus
+  #     state: present
+  
+  # - name: Install prometheus-stack Helm chart
+  #   kubernetes.core.helm:
+  #     name: prometheus-stack
+  #     chart_ref: prometheus-community/kube-prometheus-stack
+  #     release_namespace: prometheus
+  #     state: present
+  
+  # - name: Apply default headers
+  #   kubernetes.core.k8s:
+  #     state: present
+  #     definition: "{{ lookup('template', 'default-headers.j2') }}"
+  
+  - name: Apply Traefik-Nautobot ingress
+    community.kubernetes.k8s:
+      state: present
+      definition: "{{ lookup('template', 'production-ingress.j2') }}"
+    register: ingress_output

@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: eveng
+  namespace: default
+spec:
+  ports:
+    - protocol: TCP
+      port: 443

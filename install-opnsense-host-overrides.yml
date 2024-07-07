@@ -14,6 +14,9 @@
           - hostname: 'traefik'
           - hostname: 'rancher'
           - hostname: 'gitlab'
+          - hostname: 'registery'
+          - hostname: 'minio'
+          - hostname: 'kas'
           - hostname: 'nautobot'
 
 

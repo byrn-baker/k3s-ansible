@@ -7,3 +7,6 @@ kubeconfig
 nautobot_secrets.yml
 generated_certificate/
 key.txt
+roles/install-cert-manager/templates/prod-byrnbaker-me-prod.j2
+.gitignore
+kube-prometheus-stack/

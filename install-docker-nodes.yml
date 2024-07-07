@@ -1,6 +1,6 @@
 ---
 - name: Install Docker on k3s worker nodes
-  hosts: gitlab-runner-vm01
+  hosts: [k3s04, k3s05, k3s06, k3s07, k3s08, k3s09, k3s10, k3s12, k3s13]
   become: yes
   tasks:
     - name: install ca-certificates curl
@@ -51,8 +51,17 @@
         - docker-buildx-plugin
         - docker-compose-plugin
     
-    - name: Ensure Docker service is running
-      service:
-        name: docker
-        state: started
-        enabled: yes
+    - name: Reboot the node and wait for it to start
+      reboot:
+    
+    # - name: /etc/apt/keyrings/docker.asc
+    #   command: curl -L "https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh" | sudo bash
+    #   ignore_errors: true
+    
+    # - name: Apt Update
+    #   command: apt-get update
+
+    # - name: Install gitlab runner packages
+    #   apt:
+    #     name: gitlab-runner
+    #     state: latest

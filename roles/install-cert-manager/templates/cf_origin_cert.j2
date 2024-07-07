@@ -1,0 +1,26 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: byrnbaker-me
+  namespace: default
+spec:
+  # The secret name where cert-manager should store the signed certificate
+  secretName: byrnbaker-me-tls
+  dnsNames:
+    - blog.{{ public_domain }}
+  # Duration of the certificate
+  duration: 168h
+  # Renew a day before the certificate expiration
+  renewBefore: 24h
+  # Reference the Origin CA Issuer you created above, which must be in the same namespace.
+  issuerRef:
+    group: cert-manager.k8s.cloudflare.com
+    kind: OriginIssuer
+    name: prod-issuer
+  # Reflects certificate into other namespaces
+  secretTemplate:
+    annotations:
+      reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+      reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+      reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "traefik,gitlab,cattle-system,nautobot"

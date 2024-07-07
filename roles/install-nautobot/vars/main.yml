@@ -1,10 +1,15 @@
 nautobot_values:
   nautobot:
+    autoscale:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 4
     image:
       registry: "ghcr.io"
-      repository: "nautobot/nautobot"
-      tag: "2.1.5-py3.11" # Latest Version
-      pullPolicy: "Always"
+      repository: "byrn-baker/nautobot-kubernetes"
+      tag: "v0.0.4"
+      pullSecrets:
+        - "ghcr.io"
     replicaCount: 2
     metrics: true
     secretKey: "{{ nb_secretKey }}"
